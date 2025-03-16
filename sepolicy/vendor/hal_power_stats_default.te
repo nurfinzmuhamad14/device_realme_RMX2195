@@ -1,0 +1,2 @@
+allow hal_power_stats_default sysfs_hal_power_stats_default:file { open read };
+
