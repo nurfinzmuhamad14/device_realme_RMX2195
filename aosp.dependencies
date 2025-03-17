@@ -1,13 +1,14 @@
 [
     {
-        "repository":   "kernel_realme_RMX2195",
+        "repository":   "kernel_realme_sm4250",
         "target_path":  "kernel/realme/RMX2195",
-        "branch":       "eleven"
+        "branch":       "Eleven"
+        "remote":       "nurfinzmuhamad14"
     },
     {
         "repository":   "vendor_realme_RMX2195",
         "target_path":  "vendor/realme/RMX2195",
-        "branch":       "eleven",
+        "branch":       "Eleven",
         "remote":       "nurfinzmuhamad14"
     }
 ]
