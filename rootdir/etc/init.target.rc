@@ -26,11 +26,14 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #
-# kevin@system, 2019/06/08, add carrier rc
-import /vendor/etc/init/hw/init.oem.carrier.rc
 
 on early-init
-    exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d /vendor/lib/modules audio_q6_pdr audio_q6_notifier audio_snd_event audio_apr audio_adsp_loader audio_q6 audio_native audio_usf audio_pinctrl_lpi audio_swr audio_swr_ctrl audio_platform audio_stub audio_wcd_core audio_wcd9xxx audio_wsa881x_analog audio_aw87529 audio_aw87359 audio_bolero_cdc audio_va_macro audio_rx_macro audio_tx_macro audio_mbhc audio_wcd937x audio_wcd937x_slave audio_pm2250_spmi audio_rouleur audio_rouleur_slave audio_machine_bengal
+    #ifndef OPLUS_ARCH_EXTENDS
+    #Ming.Liu@MM.Audiodriver.Codec 2020/10/18  added for audio bring up
+    #exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d /vendor/lib/modules audio_q6_pdr audio_q6_notifier audio_snd_event audio_apr audio_adsp_loader audio_q6 audio_native audio_usf audio_pinctrl_lpi audio_swr audio_swr_ctrl audio_platform audio_stub audio_wcd_core audio_wcd9xxx audio_wsa881x_analog audio_bolero_cdc audio_va_macro audio_rx_macro audio_tx_macro audio_mbhc audio_wcd937x audio_wcd937x_slave audio_pm2250_spmi audio_rouleur audio_rouleur_slave audio_machine_bengal
+    #else/*OPLUS_ARCH_EXTENDS*/
+    exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d /vendor/lib/modules audio_q6_pdr audio_q6_notifier audio_snd_event audio_apr audio_adsp_loader audio_q6 audio_native audio_usf audio_pinctrl_lpi audio_swr audio_swr_ctrl audio_platform audio_stub audio_wcd_core audio_wcd9xxx audio_aw87xxx audio_sia81xx audio_bolero_cdc audio_va_macro audio_rx_macro audio_tx_macro audio_mbhc audio_wcd937x audio_wcd937x_slave audio_pm2250_spmi audio_rouleur audio_rouleur_slave audio_machine_bengal
+    #endif/*OPLUS_ARCH_EXTENDS*/
     write /proc/sys/kernel/sched_boost 1
 
 on init
@@ -52,25 +55,24 @@ on early-fs
 
 on fs
     start hwservicemanager
-    mkdir /mnt/vendor/op2 0660 system system
+    #ifdef OPLUS_FEATURE_STORAGE_RESERVEPARTITION
+    #Xuefeng.Peng@ANDROID.STORAGE.1207580, 2018/11/19, Add for change opporeserve mount point for google GSI test
+    mkdir /mnt/vendor/opporeserve 0771 system system
+    #endif /*OPLUS_FEATURE_STORAGE_RESERVEPARTITION*/
     mount_all --early
     chown root system /mnt/vendor/persist
     chmod 0771 /mnt/vendor/persist
     restorecon_recursive /mnt/vendor/persist
     mkdir /mnt/vendor/persist/data 0700 system system
-    wait /mnt/vendor/op2
-    chown system system /mnt/vendor/op2
-    mkdir /mnt/vendor/op2/rbr_log 0770 system system
 
 on post-fs
     # set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
-    mkdir /mnt/vendor/op2/recovery 0770 root system
 
 on late-fs
     wait_for_prop hwservicemanager.ready true
     exec_start wait_for_keymaster
-    mount_all /vendor/etc/fstab.qcom --late
+    mount_all --late
 
 on post-fs-data
     mkdir /vendor/data/tombstones 0771 system system
@@ -79,6 +81,14 @@ on early-boot
     start vendor.sensors
 
 on boot
+    #ifdef VENDOR_EDIT
+    #Tianjing.Zhu@RM.AD.Performance , 2021/3/24, Add for boost boot time
+    write /dev/cpuset/top-app/cpus 0-7
+    write /dev/cpuset/foreground/cpus 0-7
+    write /dev/cpuset/foreground/boost/cpus 0-7
+    write /dev/cpuset/system-background/cpus 0-7
+    write /dev/cpuset/background/cpus 0-3
+    #endif
 #USB controller configuration
     setprop vendor.usb.rndis.func.name "gsi"
     setprop vendor.usb.rmnet.func.name "gsi"
@@ -88,11 +98,7 @@ on boot
     setprop vendor.usb.controller 4e00000.dwc3
 
 #Load WLAN driver
-#Do not install wlan ko at bootup time.
-#   insmod /vendor/lib/modules/qca_cld3_wlan.ko
-
-on boot
-    write /dev/cpuset/background/cpus 0-3
+    insmod /vendor/lib/modules/qca_cld3_wlan.ko
 
 on boot && property:persist.vendor.usb.controller.default=*
     setprop vendor.usb.controller ${persist.vendor.usb.controller.default}
@@ -139,17 +145,15 @@ on property:init.svc.vendor.per_mgr=running
 on property:sys.shutdown.requested=*
     stop vendor.per_proxy
 
-#connectivity@eleven.xie, 2021/04/12, use cnss_diag to grab WiFi log
+#//ZhangPan@CONNECTIVITY.WIFI.BASIC.LOG.1072015,2016/08/03, Remove for wifi log enhance function
 #on property:vold.decrypt=trigger_restart_framework
 #   start vendor.cnss_diag
-#endif /* VENDOR_EDIT */
-
-service vendor.cnss_diag /system/vendor/bin/cnss_diag -q -f -t HELIUM
-   class main
-   user system
-   group system wifi inet sdcard_rw media_rw diag
-   disabled
-   oneshot
+#service vendor.cnss_diag /system/vendor/bin/cnss_diag -q -f -t HELIUM
+#   class main
+#   user system
+#   group system wifi inet sdcard_rw media_rw diag
+#   oneshot
+#endif /* OPLUS_BUG_COMPATIBILITY */
 
 service dcvs-sh /vendor/bin/init.qti.dcvs.sh
     class late_start
@@ -160,3 +164,35 @@ service dcvs-sh /vendor/bin/init.qti.dcvs.sh
 
 on property:vendor.dcvs.prop=1
    start dcvs-sh
+
+service boot_log_crash /system/bin/logcat -b crash -D -f /cache/boot_log_crash.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service boot_log_kernel /system/bin/logcat -b kernel -D -f /cache/boot_log_kernel.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+on post-fs-data
+# Clear existing log and start the service
+    rm /cache/boot_log_full.txt
+    rm /cache/boot_log_crash.txt
+    rm /cache/boot_log_kernel.txt
+    start boot_log
+    start boot_log_crash
+    start boot_log_kernel
+
+on property:sys.boot_completed=1
+# Stop the logger service
+    stop boot_log
+    stop boot_log_crash
+    stop boot_log_kernel
+    
+# Force disable hw overlays to be true
+    exec - root -- /system/bin/sh -c "service call SurfaceFlinger 1008 i32 1"
