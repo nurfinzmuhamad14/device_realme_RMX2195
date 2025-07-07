@@ -6,8 +6,10 @@
 
 DEVICE_PATH := device/realme/RMX2195
 
-# Broken R
+# TMP
+BUILD_BROKEN_USES_BUILD_COPY_HEADERS := true
 BUILD_BROKEN_DUP_RULES := true
+
 
 # Architecture
 TARGET_ARCH := arm64
@@ -91,9 +93,18 @@ BOARD_DTB_OFFSET := 0x01f00000
 TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADERS := kernel/realme/RMX2195
 
+
+ifneq ($(USE_PREBUILT_KERNEL),true)
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
+else
+TARGET_KERNEL_SOURCE := kernel/realme/RMX2195
+TARGET_KERNEL_NO_GCC := false
+BOARD_KERNEL_SEPARATED_DTBO := false
+BOARD_INCLUDE_RECOVERY_DTBO := false
+BOARD_KERNEL_IMAGE_NAME := Image.gz
+endif
 BOARD_BOOTIMG_HEADER_VERSION := 2
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
@@ -148,7 +159,7 @@ TARGET_COPY_OUT_SYSTEM_EXT := system_ext
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_COPY_OUT_PRODUCT := product
 
-BUILD_WITHOUT_VENDOR := true
+BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
 
 # Power
 TARGET_USES_INTERACTION_BOOST := true
@@ -157,6 +168,9 @@ TARGET_TAP_TO_WAKE_NODE := "/sys/touchpanel/double_tap"
 
 # Platform
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno610
+
+# QCOM hardware
+BOARD_USES_QCOM_HARDWARE := true
 
 # Recovery
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/etc/fstab.default
@@ -167,14 +181,21 @@ TARGET_USERIMAGES_USE_F2FS := true
 TARGET_PROVIDES_QTI_TELEPHONY_JAR := true
 
 # Sepolicy
-include device/qcom/sepolicy/SEPolicy.mk
 BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(DEVICE_PATH)/sepolicy/private
+BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/qcom/sepolicy/private
+BOARD_PLAT_PUBLIC_SEPOLICY_DIR += device/qcom/sepolicy/public
+SELINUX_IGNORE_NEVERALLOWS := true
 
 # Treble
 BOARD_VNDK_VERSION := current
 
 # UEFI
 TARGET_USES_UEFI := true
+
+# HIDL
+DEVICE_FRAMEWORK_MANIFEST_FILE := $(DEVICE_PATH)/framework_manifest.xml
+DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
+DEVICE_MATRIX_FILE := $(DEVICE_PATH)/compatibility_matrix.xml
 
 # Verified Boot
 BOARD_AVB_ENABLE := true
