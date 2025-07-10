@@ -11,10 +11,10 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 $(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
 
 # Non a/b
-$(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
+#$(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
 
 # Project ID Quota
-$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+#$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
 # Update
 AB_OTA_UPDATER := false
