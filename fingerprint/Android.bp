@@ -17,8 +17,8 @@ cc_binary {
         "libhardware",
         "libutils",
         "libbase",
-        "android.hardware.biometrics.fingerprint@2.1",
-        "vendor.realme.hardware.biometrics.fingerprint@2.1",
+        "vendor.oplus.hardware.biometrics.fingerprint@2.1",
+        "vendor.qti.hardware.fingerprint@1.0@",
     ],
     proprietary: true,
 }

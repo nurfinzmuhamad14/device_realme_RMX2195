@@ -10,11 +10,6 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 # Installs gsi keys into ramdisk, to boot a developer GSI with verified boot.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
 
-# Non a/b
-#$(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
-
-# Project ID Quota
-#$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
 # Update
 AB_OTA_UPDATER := false
@@ -260,27 +255,20 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/privapp-permissions-hotword.xml:system/etc/permissions/privapp-permissions-hotword.xml
 
-# Init
+# Ramdisk
 PRODUCT_PACKAGES += \
-    fstab.qcom \
-    init.class_main.sh \
-    init.oppo.face.rc \
-    init.oppo.face.sh \
-    init.oppo.fingerprints.rc \
-    init.oppo.fingerprints.sh \
-    init.oppo.product.rc \
-    init.oppo.reserve.rc \
-    init.msm.usb.configfs.rc \
-    init.qcom.early_boot.sh \
-    init.qcom.post_boot.sh \
+    init.oppo.sensor.rc \
+    init.qcom.factory.rc \
     init.qcom.rc \
-    init.qcom.sensors.sh \
-    init.qcom.sh \
     init.qcom.usb.rc \
-    init.qcom.usb.sh \
-    init.recovery.qcom.rc \
+    init.qti.ufs.rc \
     init.target.rc \
-    ueventd.qcom.rc
+    init.wlan.qcom.rc \
+    init.wlan.target.rc \
+    fstab-wlan.qcom \
+    fstab.default \
+    fstab.emmc \
+    ueventd.qcom.rc \
 
 # IPv6
 PRODUCT_PACKAGES += \
@@ -294,7 +282,7 @@ PRODUCT_COPY_FILES += \
 
 # Lights
 PRODUCT_PACKAGES += \
-    android.hardware.lights-service.RMX2195
+    android.hardware.lights-service.bengal
 
 # Media
 PRODUCT_COPY_FILES += \

@@ -1,55 +1,36 @@
 /*
  * Copyright (C) 2020 The Android Open Source Project
- * Copyright (C) 2020-2021 The LineageOS Project
+ * Copyright (C) 2023 The LineageOS Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
 
+#define LOG_TAG "android.hardware.lights-service.bengal"
+
 #include <aidl/android/hardware/light/BnLights.h>
-#include <hardware/hardware.h>
-#include <hardware/lights.h>
-#include <map>
-#include <sstream>
+#include <array>
 
 namespace aidl {
 namespace android {
 namespace hardware {
 namespace light {
 
+// Keep sorted in the order of priority.
+constexpr std::array kAvailableLights = {
+        // id, ordinal, type
+        HwLight{static_cast<int32_t>(LightType::NOTIFICATIONS), 0, LightType::NOTIFICATIONS},
+        HwLight{static_cast<int32_t>(LightType::BATTERY), 1, LightType::BATTERY},
+};
+
 class Lights : public BnLights {
   public:
-    Lights();
     ndk::ScopedAStatus setLightState(int id, const HwLightState& state) override;
     ndk::ScopedAStatus getLights(std::vector<HwLight>* types) override;
 
   private:
-    void setLightBacklight(int id, const HwLightState& state);
-    void setLightNotification(int id, const HwLightState& state);
-    void applyNotificationState(const HwLightState& state);
-
-    uint32_t max_led_brightness_;
-    uint32_t max_screen_brightness_;
-
-    std::map<int, std::function<void(int id, const HwLightState&)>> mLights;
-    std::vector<HwLight> mAvailableLights;
-
-    // Keep sorted in the order of importance.
-    std::array<std::pair<int, HwLightState>, 2> notif_states_ = {{
-            {(int)LightType::NOTIFICATIONS, {}},
-            {(int)LightType::BATTERY, {}},
-    }};
+    std::array<HwLightState, kAvailableLights.size()> notif_states_;
 };
 
 }  // namespace light
