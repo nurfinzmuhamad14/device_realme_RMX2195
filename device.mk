@@ -12,9 +12,14 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
 
 
 # Update
-AB_OTA_UPDATER := false
-PRODUCT_SOONG_NAMESPACES += bootable/deprecated-ota
+AB_OTA_UPDATER := false   
 
+# Soong namespaces
+PRODUCT_SOONG_NAMESPACES += \
+	$(LOCAL_PATH) \
+    hardware/google/interfaces \
+    hardware/google/pixel \
+    bootable/deprecated-ota
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay
@@ -183,9 +188,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml
 
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/egis.sh:install/bin/egis.sh
-
 # FM
 PRODUCT_PACKAGES += \
     FM2 \
@@ -239,7 +241,6 @@ PRODUCT_COPY_FILES += \
 
 # Health
 PRODUCT_PACKAGES += \
-    android.hardware.health@2.0-impl \
     android.hardware.health@2.0-service
 
 PRODUCT_COPY_FILES += \
