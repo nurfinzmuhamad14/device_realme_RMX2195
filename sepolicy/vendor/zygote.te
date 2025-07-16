@@ -1,3 +1,0 @@
-allow zygote zygote:capability kill;
-
-allow zygote adsprpcd_file:dir { search };

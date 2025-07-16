@@ -1,4 +1,4 @@
-service fps_hal.RMX2195 /vendor/bin/hw/android.hardware.biometrics.fingerprint@2.1-service.RMX2195
+service fps_hal.RMX2195 /system/bin/hw/android.hardware.biometrics.fingerprint@2.1-service.RMX2195
     # "class hal" causes a race condition on some devices due to files created
     # in /data. As a workaround, postpone startup until later in boot once
     # /data is mounted.
@@ -13,27 +13,3 @@ service fps_hal /vendor/bin/hw/vendor.realme.hardware.biometrics.fingerprint@2.1
     class late_start
     user system
     group system input uhid
-
-service ets_hal.rbs /vendor/bin/hw/android.hardware.biometrics.fingerprint@2.1-service-rbs
-    # "class hal" causes a race condition on some devices due to files created
-    # in /data. As a workaround, postpone startup until later in boot once
-    # /data is mounted.
-    class late_start
-    user system
-    group system input uhid
-    disabled
-
-service ets_hal /vendor/bin/hw/vendor.realme.hardware.biometrics.fingerprint@2.1-service-rbs
-    # "class hal" causes a race condition on some devices due to files created
-    # in /data. As a workaround, postpone startup until later in boot once
-    # /data is mounted.
-    class late_start
-    user system
-    group system input uhid
-    disabled
-
-on property:persist.vendor.fingerprint.fp_id=E_520 && property:init.svc.fps_hal=running && property:init.svc.fps_hal.RMX2195=running
-    stop fps_hal
-    stop fps_hal.RMX2195
-    start ets_hal
-    start ets_hal.rbs
